@@ -29,13 +29,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // des navigateurs est de présenter un dialogue demandant de s'authentifier. On veut
 // éviter cela, donc on ajoute un "x" au début.
 class BasicStrategyModified extends BasicStrategy {
-  constructor(options, verify) {
-    return super(options, verify);
-  }
+	constructor(options, verify) {
+		return super(options, verify);
+	}
 
-  _challenge() {
-    return 'xBasic realm="' + this._realm + '"';
-  }
+	_challenge() {
+		return 'xBasic realm="' + this._realm + '"';
+	}
 }
 
 
@@ -53,7 +53,33 @@ class BasicStrategyModified extends BasicStrategy {
 // Référez-vous au app.js de l'exemple 1 du cours 19 pour voir la marche à suivre.
 
 // passport.use( ... à compléter ... );
+passport.use(new BasicStrategyModified((username, password, cb) => {
+	userAccountQueries.getLoginByUserAccountId(username).then(user => {
+		if (!user) {
+			return cb(null, false);
+		}
 
+		const iterations = 100000;
+		const keylen = 64;
+		const digest = "sha512";
+
+		crypto.pbkdf2(password, user.passwordSalt, iterations, keylen, digest, (err, hashedPassword) => {
+			if (err) {
+				return cb(err);
+			}
+
+			const userPasswordHashBuffer = Buffer.from(user.passwordHash, "base64");
+			if (!crypto.timingSafeEqual(userPasswordHashBuffer, hashedPassword)) {
+				return cb(null, false);
+			}
+
+			return cb(null, user);
+		});
+        
+	}).catch(err => {
+		return cb(err);
+	});
+}));
 
 app.use('/products', productRouter);
 app.use('/cart', cartRouter);
@@ -92,16 +118,16 @@ app.use('/orders', orderRouter);
 // Gestionnaire d'erreur, sera invoqué si on appelle next(...) en passant
 // un objet d'erreur.
 app.use((err, req, res, next) => {
-  console.log("error handler: ", err);
-  if (res.headersSent) {
-    return next(err);
-  }
-  res.status(err.status || 500)
-  if (err instanceof HttpError) {
-    res.json(err.getJsonMessage());
-  } else {
-    res.json(err);
-  }
+	console.log("error handler: ", err);
+	if (res.headersSent) {
+		return next(err);
+	}
+	res.status(err.status || 500)
+	if (err instanceof HttpError) {
+		res.json(err.getJsonMessage());
+	} else {
+		res.json(err);
+	}
 });
 
 module.exports = app;
