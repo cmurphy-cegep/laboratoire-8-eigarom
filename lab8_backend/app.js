@@ -59,6 +59,10 @@ passport.use(new BasicStrategyModified((username, password, cb) => {
 			return cb(null, false);
 		}
 
+		if (!user.isActive) {
+			return cb(null, false);
+		}
+
 		const iterations = 100000;
 		const keylen = 64;
 		const digest = "sha512";
@@ -111,7 +115,25 @@ app.use('/orders', orderRouter);
 // d'un compte utilisateur (p.ex. josbleau).
 
 // app.get('/login', ... à compléter ...);
+app.get('/login',
+	passport.authenticate('basic', { session: false }),
+	(req, res, next) => {
+		if (req.user) {
+			// On crée un nouvel objet pour la réponse en JSON, afin de ne pas
+			// retourner le hash et salt du mot de passe:
+			const userDetails = {
+				userAccountId: req.user.userAccountId,
+				userFullName: req.user.userFullName,
+				isAdmin: req.user.isAdmin,
+				isActive: req.user.isActive
+			};
 
+			res.json(userDetails);
+		} else {
+			return next({ status: 500, message: "Propriété user absente" });
+		}
+	}
+);
 
 // *** GESTION DES ERREURS ***
 
