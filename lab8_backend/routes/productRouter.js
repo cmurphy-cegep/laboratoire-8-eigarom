@@ -75,7 +75,7 @@ router.get('/:id/image', (req, res, next) => {
 // un client normal (et aucun ajout de produit ne doit avoir lieu dans ce cas).
 // On peut utiliser la propriété req.user pour obtenir les informations du compte authentifié.
 //
-// Au besoin, référez-vous au module listeDifussionRouter.js dans l'exemple de code du cours 19.
+// Référez-vous au besoin au module contactRouter.js dans les exemples du cours 19.
 router.post('/',
 	passport.authenticate('basic', {session: false}),
 	(req, res, next) => {
