@@ -191,6 +191,10 @@ router.post('/:id/image',
 	// Cet appel de middleware doit venir après celui de l'authentification.
 	upload.single('product-image'), // doit correspondre à l'id du champ dans le formulaire html
 	(req, res, next) => {
+		if (!req.user.isAdmin) {
+			return next(new HttpError(403, 'Vous n\'avez pas les permissions'));
+		}
+
 		const id = req.params.id;
 		if (!id || id === '') {
 			// Le return fait en sorte qu'on n'exécutera pas le reste de la fonction

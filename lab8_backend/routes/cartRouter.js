@@ -36,7 +36,7 @@ router.get('/:userId',
 			// Conseil: il peut s'avérer judicieux d'extraire la logique de validation pour l'autorisation
 			// d'accès au panier dans une fonction à part, car la même logique s'appliquera pour les routes
 			// PUT et DELETE liées au panier.
-			if (req.user.userAccountId !== req.params.userId && req.user.isAdmin === false) {
+			if (req.user.userAccountId !== req.params.userId && !req.user.isAdmin) {
 				return next(new HttpError(403, 'Vous n\'avez pas les permissions'));
 			}
 
@@ -63,7 +63,7 @@ router.put('/:userId/:productId',
 			// La même logique d'autorisation que pour le GET d'un panier s'applique ici :
 			// - Un utilisateur non-administrateur ne peut modifier que son propre panier
 			// - Un utilisateur administrateur peut modifier n'importe quel panier
-			if (req.user.userAccountId !== req.params.userId && req.user.isAdmin === false) {
+			if (req.user.userAccountId !== req.params.userId && !req.user.isAdmin) {
 				return next(new HttpError(403, 'Vous n\'avez pas les permissions'));
 			}
 
@@ -102,7 +102,7 @@ router.delete('/:userId/:productId',
 			// La même logique d'autorisation que pour le GET d'un panier s'applique ici :
 			// - Un utilisateur non-administrateur ne peut modifier que son propre panier
 			// - Un utilisateur administrateur peut modifier n'importe quel panier
-			if (req.user.userAccountId !== req.params.userId && req.user.isAdmin === false) {
+			if (req.user.userAccountId !== req.params.userId && !req.user.isAdmin) {
 				return next(new HttpError(403, 'Vous n\'avez pas les permissions'));
 			}
 
@@ -136,7 +136,7 @@ router.delete('/:userId',
 			// La même logique d'autorisation que pour le GET d'un panier s'applique ici :
 			// - Un utilisateur non-administrateur ne peut supprimer que son propre panier
 			// - Un utilisateur administrateur peut supprimer n'importe quel panier
-			if (req.user.userAccountId !== req.params.userId && req.user.isAdmin === false) {
+			if (req.user.userAccountId !== req.params.userId && !req.user.isAdmin) {
 				return next(new HttpError(403, 'Vous n\'avez pas les permissions'));
 			}
 
